@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Time Tracker & Memory Gallery</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="dashboard-body">
+    <!-- Hardware-Accelerated Oil in Water Background -->
+    <div class="background" aria-hidden="true">
+        <div class="oil-layer oil-layer-1"></div>
+        <div class="oil-layer oil-layer-2"></div>
+        <div class="oil-layer oil-layer-3"></div>
+        <div class="oil-sheen"></div>
+        <div class="noise-overlay"></div>
+    </div>
+
+    <div class="dashboard-container">
+        <!-- Main Time Tracker Card -->
+        <main class="tracker">
+            <h2>Time Tracker</h2>
+            <p class="tracker-subtitle">we have been together since</p>
+
+            <div class="tracker-time">
+                <div class="time-unit">
+                    <span id="years">0</span>
+                    <p>Years</p>
+                </div>
+
+                <div class="time-unit">
+                    <span id="months">0</span>
+                    <p>Months</p>
+                </div>
+
+                <div class="time-unit">
+                    <span id="days">0</span>
+                    <p>Days</p>
+                </div>
+            </div>
+
+            <div class="tracker-clock">
+                <span id="hours">00</span><span class="colon">:</span><span id="minutes">00</span><span class="colon">:</span><span id="seconds">00</span>
+            </div>
+
+            <!-- Scroll Down Hint -->
+            <a href="#gallery" class="scroll-down-hint">
+                <span>View Memories Gallery</span>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="12" y1="5" x2="12" y2="19"></line>
+                    <polyline points="19 12 12 19 5 12"></polyline>
+                </svg>
+            </a>
+        </main>
+
+        <!-- Picture Gallery Section -->
+        <section class="gallery-section" id="gallery">
+            <div class="gallery-header">
+                <div class="gallery-title-group">
+                    <h2>Picture Gallery</h2>
+                    <p class="gallery-subtitle">Click any picture to expand it and read the story</p>
+                </div>
+            </div>
+
+            <!-- Picture Gallery Grid -->
+            <div class="gallery-grid" id="galleryGrid">
+                <!-- Injected via JavaScript from MEMORIES array below -->
+            </div>
+        </section>
+    </div>
+
+    <!-- =========================================================
+         EXPANDED PICTURE MODAL (Takes up most of the screen)
+         ========================================================= -->
+    <div class="modal-backdrop" id="expandModal" role="dialog" aria-modal="true" aria-hidden="true">
+        <div class="modal-card">
+            <!-- Modal Header with Date & Close Button -->
+            <div class="modal-header">
+                <div class="modal-date-tag">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                        <line x1="16" y1="2" x2="16" y2="6"></line>
+                        <line x1="8" y1="2" x2="8" y2="6"></line>
+                        <line x1="3" y1="10" x2="21" y2="10"></line>
+                    </svg>
+                    <span id="modalDateText" class="modal-date-tag-text"></span>
+                </div>
+                <button type="button" class="modal-close-btn" id="closeExpandModalBtn" aria-label="Close modal">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Large Expanded Image -->
+            <div class="modal-image-wrapper">
+                <img id="modalExpandedImg" src="" alt="Expanded Memory">
+            </div>
+
+            <!-- Memory Paragraph Reading Section -->
+            <div class="modal-paragraph-section">
+                <div class="paragraph-header">
+                    <label>Memory Story</label>
+                </div>
+                <p id="modalParagraphText" class="modal-paragraph-text"></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- =========================================================
+         JAVASCRIPT: TIME TRACKER & GALLERY
+         ========================================================= -->
+    <script>
+        /* ---------------------------------------------------------
+           1. TIME TRACKER SCRIPT (Elapsed time since 19/9/25)
+           --------------------------------------------------------- */
+        function updateTracker() {
+            const start = new Date(2025, 8, 19, 0, 0, 0); // Sept 19, 2025
+            const now = new Date();
+
+            if (now < start) {
+                document.getElementById('years').textContent = '0';
+                document.getElementById('months').textContent = '0';
+                document.getElementById('days').textContent = '0';
+                document.getElementById('hours').textContent = '00';
+                document.getElementById('minutes').textContent = '00';
+                document.getElementById('seconds').textContent = '00';
+                return;
+            }
+
+            let years = now.getFullYear() - start.getFullYear();
+            let months = now.getMonth() - start.getMonth();
+            let days = now.getDate() - start.getDate();
+            let hours = now.getHours() - start.getHours();
+            let minutes = now.getMinutes() - start.getMinutes();
+            let seconds = now.getSeconds() - start.getSeconds();
+
+            if (seconds < 0) {
+                seconds += 60;
+                minutes--;
+            }
+            if (minutes < 0) {
+                minutes += 60;
+                hours--;
+            }
+            if (hours < 0) {
+                hours += 24;
+                days--;
+            }
+            if (days < 0) {
+                const prevMonth = new Date(now.getFullYear(), now.getMonth(), 0);
+                days += prevMonth.getDate();
+                months--;
+            }
+            if (months < 0) {
+                months += 12;
+                years--;
+            }
+
+            document.getElementById('years').textContent = years;
+            document.getElementById('months').textContent = months;
+            document.getElementById('days').textContent = days;
+            document.getElementById('hours').textContent = String(hours).padStart(2, '0');
+            document.getElementById('minutes').textContent = String(minutes).padStart(2, '0');
+            document.getElementById('seconds').textContent = String(seconds).padStart(2, '0');
+        }
+
+        updateTracker();
+        setInterval(updateTracker, 1000);
+
+        /* ---------------------------------------------------------
+           2. PICTURE GALLERY WITH DULCE DE COREM
+           --------------------------------------------------------- */
+        const MEMORIES = [
+            {
+                id: 'mem-1',
+                image: 'static/images/memory1.jpg',
+                date: '13/10/25',
+                paragraph: 'the begining'
+            },
+            {
+                id: 'mem-2',
+                image: 'static/images/memory2.jpg',
+                date: '31/10/25',
+                paragraph: 'cyloneaween 2025'
+            },
+            {
+                id: 'mem-3',
+                image: 'static/images/memory3.jpg',
+                date: '1/3/26',
+                paragraph: 'ty ball'
+            },
+            {
+                id: 'mem-4',
+                image: 'static/images/memory4.jpg',
+                date: '11/10/26',
+                paragraph: 'our biggest gaffy'
+            }
+        ];
+
+        const galleryGrid = document.getElementById('galleryGrid');
+
+        function renderGallery() {
+            galleryGrid.innerHTML = '';
+
+            MEMORIES.forEach((mem) => {
+                const card = document.createElement('article');
+                card.className = 'gallery-card';
+                card.setAttribute('tabindex', '0');
+                card.setAttribute('role', 'button');
+                card.setAttribute('aria-label', `View memory from ${mem.date}`);
+
+                card.innerHTML = `
+                    <div class="gallery-card-img-wrap">
+                        <img src="${mem.image}" alt="Memory on ${mem.date}" loading="lazy">
+                        <div class="card-overlay-sheen"></div>
+                        <div class="expand-badge">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="15 3 21 3 21 9"></polyline>
+                                <polyline points="9 21 3 21 3 15"></polyline>
+                                <line x1="21" y1="3" x2="14" y2="10"></line>
+                                <line x1="3" y1="21" x2="10" y2="14"></line>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="gallery-card-body">
+                        <div class="gallery-card-date">
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                                <line x1="16" y1="2" x2="16" y2="6"></line>
+                                <line x1="8" y1="2" x2="8" y2="6"></line>
+                                <line x1="3" y1="10" x2="21" y2="10"></line>
+                            </svg>
+                            <span>${mem.date}</span>
+                        </div>
+                        <p class="gallery-card-snippet">${mem.paragraph}</p>
+                    </div>
+                `;
+
+                card.addEventListener('click', () => openExpandModal(mem));
+                card.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        openExpandModal(mem);
+                    }
+                });
+
+                galleryGrid.appendChild(card);
+            });
+        }
+
+        /* ---------------------------------------------------------
+           3. EXPAND PICTURE MODAL (Expand into most of screen)
+           --------------------------------------------------------- */
+        const expandModal = document.getElementById('expandModal');
+        const modalExpandedImg = document.getElementById('modalExpandedImg');
+        const modalDateText = document.getElementById('modalDateText');
+        const modalParagraphText = document.getElementById('modalParagraphText');
+        const closeExpandModalBtn = document.getElementById('closeExpandModalBtn');
+
+        function openExpandModal(mem) {
+            modalExpandedImg.src = mem.image;
+            modalDateText.textContent = mem.date;
+            modalParagraphText.textContent = mem.paragraph;
+
+            expandModal.classList.add('active');
+            expandModal.setAttribute('aria-hidden', 'false');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeExpandModal() {
+            expandModal.classList.remove('active');
+            expandModal.setAttribute('aria-hidden', 'true');
+            document.body.style.overflow = '';
+        }
+
+        closeExpandModalBtn.addEventListener('click', closeExpandModal);
+        expandModal.addEventListener('click', (e) => {
+            if (e.target === expandModal) closeExpandModal();
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && expandModal.classList.contains('active')) {
+                closeExpandModal();
+            }
+        });
+
+        // Initial render
+        renderGallery();
+    </script>
+</body>
+</html>
